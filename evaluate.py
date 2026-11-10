@@ -108,13 +108,14 @@ def summarize(rows: list[dict]) -> dict:
 
 
 def write_reports(rows: list[dict], summary: dict) -> None:
-    meta = {"run_at": f"{datetime.now():%Y-%m-%d %H:%M}", "model": agent.MODEL, "max_iterations": agent.MAX_ITERATIONS}
+    meta = {"run_at": f"{datetime.now():%Y-%m-%d %H:%M}", "provider": agent.PROVIDER,
+            "model": agent.MODEL, "max_iterations": agent.MAX_ITERATIONS}
     with open("report.json", "w", encoding="utf-8") as f:
         json.dump({**meta, "summary": summary, "cases": rows}, f, ensure_ascii=False, indent=2, default=str)
 
     o = summary["overall"]
     L = ["# Report: ReAct agent trên dataset", "",
-         f"_Chạy lúc {meta['run_at']} · model `{meta['model']}` · MAX_ITERATIONS = {meta['max_iterations']}_", "",
+         f"_Chạy lúc {meta['run_at']} · provider `{meta['provider']}` · model `{meta['model']}` · MAX_ITERATIONS = {meta['max_iterations']}_", "",
          f"**Kết quả: {o['pass']}/{o['cases']} PASS** ({o['partial']} PARTIAL, {o['fail']} FAIL)", "",
          "## 1. Tổng hợp theo mức độ", "",
          "| Mức | PASS | PARTIAL | FAIL | Lượt gọi model TB | Lượt gọi tool TB | Token TB | Thời gian TB |",

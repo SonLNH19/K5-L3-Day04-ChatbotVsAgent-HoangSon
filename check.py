@@ -23,6 +23,18 @@ def check_todo1_tool():
     assert "ô" not in dry.split() and "mưa" not in dry, "trời khô (10%) thì không cần gợi ý ô / áo mưa"
     assert tools.run_tool("recommend_outfit", {"temp_high_c": 33, "rain_probability": 70}).startswith("ERROR"), \
         "rain_probability = 70 (sai đơn vị) phải báo lỗi để agent biết truyền 0.7"
+    boundary = tools.recommend_outfit(temp_high_c=30, rain_probability=0.5)["items"]
+    assert any("áo khoác nhẹ" in item for item in boundary), "30°C vẫn thuộc nhánh mang áo khoác nhẹ"
+    assert not any("mưa" in item for item in boundary), "mưa đúng 50% chưa vượt ngưỡng mang ô"
+    hot = tools.recommend_outfit(temp_high_c=30.1, rain_probability=0.51)["items"]
+    assert any("cotton" in item for item in hot) and any("mưa" in item for item in hot), \
+        "trên 30°C và trên 50% phải có cả áo mỏng và đồ che mưa"
+    for probability in (0, 1):
+        assert tools.recommend_outfit(25, probability)["items"], "0 và 1 là xác suất hợp lệ"
+    for probability in (-0.1, 1.1, float("nan")):
+        assert tools.run_tool("recommend_outfit", {
+            "temp_high_c": 33, "rain_probability": probability,
+        }).startswith("ERROR:"), "xác suất ngoài khoảng phải trả về lỗi"
 
 
 def check_todo2_schema():
@@ -33,6 +45,7 @@ def check_todo2_schema():
     assert set(props) == {"temp_high_c", "rain_probability"}, "input_schema phải có đúng 2 tham số"
     assert set(spec["input_schema"].get("required", [])) == {"temp_high_c", "rain_probability"}, "thiếu 'required'"
     assert all(p.get("description") for p in props.values()), "mỗi tham số cần có description (đơn vị, khoảng giá trị)"
+    assert all(p.get("type") == "number" for p in props.values()), "cả hai tham số phải có kiểu number"
 
 
 def _response(blocks, stop_reason):
@@ -94,6 +107,41 @@ def check_todo3_loop():
     assert len(sent) == agent.MAX_ITERATIONS, \
         f"phải dừng sau MAX_ITERATIONS={agent.MAX_ITERATIONS} lần gọi model, bạn gọi {len(sent)} lần"
     assert isinstance(out, str) and out, "khi dừng vì safeguard vẫn phải trả về 1 câu thông báo"
+
+    # 4) Nhiều tool trong một lượt: giữ nguyên assistant, gom kết quả và ghép đúng ID.
+    sent.clear()
+    parallel = _response([
+        _text("Tra hai thành phố."),
+        _tool(10, "get_weather", {"city": "Hà Nội", "date": "2026-06-02"}),
+        _tool(11, "get_weather", {"city": "Đà Nẵng", "date": "2026-06-02"}),
+    ], "tool_use")
+    assert run([parallel, _response([_text("Hà Nội."), _text("Đà Nẵng.")], "end_turn")]) == "Hà Nội.\nĐà Nẵng."
+    assert sent[1][-2]["content"] is parallel.content, "phải giữ nguyên tất cả block của assistant"
+    results = sent[1][-1]["content"]
+    assert len(results) == 2, "tất cả tool_result phải nằm chung một lượt user"
+    assert [r["tool_use_id"] for r in results] == ["toolu_10", "toolu_11"], "ghép sai ID tool"
+    assert [json.loads(r["content"])["city"] for r in results] == ["Hà Nội", "Đà Nẵng"]
+
+    # 5) Tool lỗi vẫn được gửi về model để sửa tham số ở lượt kế tiếp.
+    sent.clear()
+    answer = run([
+        _response([_tool(20, "recommend_outfit", {"temp_high_c": 32, "rain_probability": 70})], "tool_use"),
+        _response([_tool(21, "recommend_outfit", {"temp_high_c": 32, "rain_probability": 0.7})], "tool_use"),
+        _response([_text("Mang ô gập hoặc áo mưa.")], "end_turn"),
+    ])
+    assert answer == "Mang ô gập hoặc áo mưa."
+    assert sent[1][-1]["content"][0]["content"].startswith("ERROR:"), "phải gửi lỗi tool về model"
+    assert "items" in json.loads(sent[2][-1]["content"][0]["content"]), "model phải có thể gọi lại sau lỗi"
+
+    # 6) Câu trả lời trực tiếp tuyệt đối không gọi tool.
+    original_tool = agent.run_tool
+    def unexpected_tool(name, args):
+        raise AssertionError("câu trả lời trực tiếp không được gọi tool")
+    agent.run_tool = unexpected_tool
+    try:
+        assert run([_response([_text("Xin chào!")], "end_turn")]) == "Xin chào!"
+    finally:
+        agent.run_tool = original_tool
 
 
 CHECKS = [

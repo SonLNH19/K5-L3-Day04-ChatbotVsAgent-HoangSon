@@ -105,6 +105,40 @@ python agent.py "Ngày mai ở Đà Nẵng nên mặc gì?"   # = ./run.sh ask "
 python evaluate.py --level edge  # = ./run.sh eval --level edge
 ```
 
+### Dùng key OpenRouter
+
+Trong `.env`, cấu hình:
+
+```dotenv
+LLM_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-...
+MODEL=anthropic/claude-haiku-5.5
+```
+
+Thay key mẫu bằng key thật. Không đặt key OpenRouter vào `ANTHROPIC_API_KEY`.
+Nếu chỉ có `OPENROUTER_API_KEY`, chương trình tự chọn OpenRouter và model Haiku ở trên.
+Nếu có cả hai key, dùng `LLM_PROVIDER` để chọn dịch vụ. Model OpenRouter dùng tên dạng `anthropic/...`.
+Chương trình dùng [Messages API của OpenRouter](https://openrouter.ai/docs/api/api-reference/anthropic-messages/create-a-message),
+giữ nguyên schema tool và vòng lặp ReAct; không cần cài thêm SDK.
+
+Chạy trên PowerShell mà không cần activate môi trường:
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 check.py
+.\.venv\Scripts\python.exe -X utf8 agent.py "Ngày mai ở Đà Nẵng nên mặc gì?"
+.\.venv\Scripts\python.exe -X utf8 evaluate.py
+```
+
+Chạy hai thí nghiệm ở phần câu hỏi suy nghĩ mà không sửa cấu hình gốc:
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 experiments.py
+```
+
+Lệnh này gọi API cho 10 câu và lưu báo cáo riêng trong `experiments/without_date/`
+và `experiments/limit_2/`. Báo cáo chính `report.md` không bị ghi đè.
+Phân tích kết quả bài làm nằm trong [BAI_LAM.md](BAI_LAM.md).
+
 ## Bước 1: Làm 3 TODO
 
 Hướng dẫn chi tiết nằm ngay trong code.

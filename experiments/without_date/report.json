@@ -1,0 +1,164 @@
+{
+  "run_at": "2026-11-10 16:42",
+  "provider": "openrouter",
+  "model": "anthropic/claude-haiku-5.5",
+  "max_iterations": 6,
+  "summary": {
+    "overall": {
+      "cases": 5,
+      "pass": 0,
+      "partial": 0,
+      "fail": 5,
+      "avg_model_calls": 1.0,
+      "avg_tool_calls": 0.0,
+      "avg_tokens": 1610,
+      "avg_latency_s": 2.6
+    },
+    "medium": {
+      "cases": 5,
+      "pass": 0,
+      "partial": 0,
+      "fail": 5,
+      "avg_model_calls": 1.0,
+      "avg_tool_calls": 0.0,
+      "avg_tokens": 1610,
+      "avg_latency_s": 2.6
+    }
+  },
+  "cases": [
+    {
+      "id": "M1",
+      "level": "medium",
+      "question": "Thời tiết Đà Nẵng ngày mai thế nào?",
+      "verdict": "FAIL",
+      "checks": [
+        {
+          "check": "Gọi get_current_date rồi get_weather",
+          "ok": false
+        },
+        {
+          "check": "Hỏi đúng ngày mai",
+          "ok": false
+        },
+        {
+          "check": "Đúng nhiệt độ cao nhất",
+          "ok": false
+        }
+      ],
+      "answer": "Tôi chưa xác định được ngày mai là ngày nào vì hiện không có công cụ tra cứu ngày hiện tại. Bạn cho tôi biết ngày cụ thể (ví dụ: 2025-06-15) để tôi kiểm tra thời tiết Đà Nẵng cho ngày đó nhé.",
+      "error": "",
+      "tools": [],
+      "tool_calls": [],
+      "latency_s": 2.42,
+      "model_calls": 1,
+      "input_tokens": 1316,
+      "output_tokens": 268,
+      "tool_errors": 0,
+      "trace": ""
+    },
+    {
+      "id": "M2",
+      "level": "medium",
+      "question": "Ngày mai ở Hà Nội nên mặc gì?",
+      "verdict": "FAIL",
+      "checks": [
+        {
+          "check": "Gọi đủ 3 tool",
+          "ok": false
+        },
+        {
+          "check": "Nhắc mang ô / áo mưa (mưa > 50%)",
+          "ok": false
+        }
+      ],
+      "answer": "Mình chưa xác định được ngày mai là ngày nào vì chưa có công cụ tra cứu ngày hiện tại. Bạn cho mình biết ngày cụ thể (YYYY-MM-DD) để mình kiểm tra thời tiết Hà Nội và gợi ý trang phục nhé.",
+      "error": "",
+      "tools": [],
+      "tool_calls": [],
+      "latency_s": 2.65,
+      "model_calls": 1,
+      "input_tokens": 1314,
+      "output_tokens": 260,
+      "tool_errors": 0,
+      "trace": ""
+    },
+    {
+      "id": "M3",
+      "level": "medium",
+      "question": "Khả năng mưa ở Phú Quốc ngày mai là bao nhiêu phần trăm?",
+      "verdict": "FAIL",
+      "checks": [
+        {
+          "check": "Gọi get_weather cho Phú Quốc",
+          "ok": false
+        },
+        {
+          "check": "Đúng % khả năng mưa",
+          "ok": false
+        }
+      ],
+      "answer": "Tôi chưa xác định được ngày mai là ngày nào vì không có công cụ tra cứu ngày hiện tại. Bạn cho tôi biết ngày cụ thể (định dạng YYYY-MM-DD) để tôi tra cứu khả năng mưa ở Phú Quốc nhé.",
+      "error": "",
+      "tools": [],
+      "tool_calls": [],
+      "latency_s": 2.94,
+      "model_calls": 1,
+      "input_tokens": 1328,
+      "output_tokens": 321,
+      "tool_errors": 0,
+      "trace": ""
+    },
+    {
+      "id": "M4",
+      "level": "medium",
+      "question": "Hôm nay ở TP.HCM nhiệt độ cao nhất bao nhiêu?",
+      "verdict": "FAIL",
+      "checks": [
+        {
+          "check": "Hỏi đúng ngày hôm nay",
+          "ok": false
+        },
+        {
+          "check": "Đúng nhiệt độ",
+          "ok": false
+        }
+      ],
+      "answer": "Tôi chưa xác định được ngày hôm nay vì hiện không có công cụ tra cứu ngày hiện tại. Bạn cho tôi biết ngày cụ thể (YYYY-MM-DD) để tôi tra nhiệt độ cao nhất ở TP.HCM nhé.",
+      "error": "",
+      "tools": [],
+      "tool_calls": [],
+      "latency_s": 2.42,
+      "model_calls": 1,
+      "input_tokens": 1326,
+      "output_tokens": 285,
+      "tool_errors": 0,
+      "trace": ""
+    },
+    {
+      "id": "M5",
+      "level": "medium",
+      "question": "Ngày mai ở TP.HCM có cần mang ô không?",
+      "verdict": "FAIL",
+      "checks": [
+        {
+          "check": "Gọi get_weather cho TP.HCM",
+          "ok": false
+        },
+        {
+          "check": "Kết luận đúng theo khả năng mưa",
+          "ok": false
+        }
+      ],
+      "answer": "Tôi chưa xác định được ngày mai là ngày nào vì không có công cụ tra cứu ngày hiện tại. Bạn cho tôi biết ngày cụ thể (định dạng YYYY-MM-DD) để tôi kiểm tra dự báo mưa ở TP.HCM nhé.",
+      "error": "",
+      "tools": [],
+      "tool_calls": [],
+      "latency_s": 2.4,
+      "model_calls": 1,
+      "input_tokens": 1315,
+      "output_tokens": 319,
+      "tool_errors": 0,
+      "trace": ""
+    }
+  ]
+}
